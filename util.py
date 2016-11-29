@@ -1,7 +1,11 @@
 import math
+import numpy as np
 
 BOARD_SIZE = 15
 MAX_HAZARD = math.exp(5)
+
+def get_at(board, x, y):
+    return board[y * BOARD_SIZE + x]
 
 def wincheck(board, pos, side):
     x = pos % BOARD_SIZE
@@ -9,9 +13,6 @@ def wincheck(board, pos, side):
 
     def check_inner(x, y):
         return (x >= 0) and (y >= 0) and (x < BOARD_SIZE) and (y < BOARD_SIZE)
-
-    def get_at(board, x, y):
-        return board[y * BOARD_SIZE + x]
 
     def _check(board, x, y, dx, dy):
         count = 0
@@ -35,56 +36,54 @@ def wincheck(board, pos, side):
     return False
  
 
- def GetFavorableValue(map, nX, nY, Type):
-     
+def GetFavorableValue(map, nX, nY, Type):
     x, y, count, hazard = nX, nY, 0, 0 
     Map = np.copy(map)
+    
+    Map[nY * BOARD_SIZE + nX] = Type
 
-        
-    Map[nY][nX] = Type
-
-    while (x > 0) and (Map[y][x-1] == Type):
+    while (x > 0) and (get_at(Map, x-1,y) == Type):
         x-=1
-    while (x < BOARD_SIZE) and (Map[y][x] == Type):
+    while (x < BOARD_SIZE) and (get_at(Map, x, y) == Type):
         count+=1
         x+=1
     if (count > 5):
         count = 2
     hazard += math.exp(count) / MAX_HAZARD
-    
+
     x, y, count = nX, nY, 0  
 
-    while (y > 0) and (Map[y-1][x] == Type):
+    while (y > 0) and (get_at(Map, x, y-1) == Type):
         y-=1
-    while (y < BOARD_SIZE) and (Map[y][x] == Type):
+    while (y < BOARD_SIZE) and (get_at(Map, x, y) == Type):
         count+=1
         y+=1
     if (count > 5):
         count = 2
     hazard += math.exp(count) / MAX_HAZARD
-    
+
     x, y, count = nX, nY, 0
-    while (x > 0) and (y > 0) and (Map[y-1][x-1] == Type):
+    while (x > 0) and (y > 0) and (get_at(Map, x-1, y-1) == Type):
         x-=1
         y-=1
-    while (x < BOARD_SIZE) and (y < BOARD_SIZE) and (Map[y][x] == Type):
+    while (x < BOARD_SIZE) and (y < BOARD_SIZE) and (get_at(Map, x, y) == Type):
         count+=1
         x+=1
         y+=1
     if (count > 5):
         count = 2
     hazard += math.exp(count) / MAX_HAZARD
-    
+
     x, y, count = nX, nY, 0
-    while (x < BOARD_SIZE-1) and (y > 0) and (Map[y-1][x+1] == Type):
+    while (x < BOARD_SIZE-1) and (y > 0) and (get_at(Map, x+1, y-1) == Type):
         x+=1
         y-=1
-    while (x >= 0) and (y < BOARD_SIZE) and (Map[y][x] == Type):
+    while (x >= 0) and (y < BOARD_SIZE) and (get_at(Map, x, y) == Type):
         count+=1
         x-=1
         y+=1
     if (count > 5):
         count = 2
     hazard += math.exp(count) / MAX_HAZARD
-    
+
     return min(1, hazard)

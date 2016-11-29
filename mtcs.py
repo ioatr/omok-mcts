@@ -125,6 +125,25 @@ def EXPANSION(node):
     child = node.get_unexpanded_child()
     # ...
     return child
+
+def SIMULATION2(node):
+    assert(len(node.children) == 0)
+
+    if node.is_terminal():
+        if(node.depth % 2) == 0:
+            if node.is_win() == True:
+                return 1
+        
+    else:
+        if (node.depth % 2) == 0:
+            side = node.side
+            x = node.move % BOARD_SIZE
+            y = int(node.move / BOARD_SIZE)
+        
+            score = GetFavorableValue(node.board, x, y, node.side)
+            return score
+
+    return 0
     
 def SIMULATION(node):
     
@@ -144,7 +163,7 @@ def SIMULATION(node):
         if(node.depth % 2) == 0:
             return 1
         else:
-            return -1
+            return 0
 
     return 0
 
@@ -174,7 +193,7 @@ def MCTS(root, limit_time):
                 # expand node
                 child = EXPANSION(node)
                 # scoring node
-                score = SIMULATION(child)
+                score = SIMULATION2(child)
                 # backpropagation to parent
                 BACKPROPAGATION(child, score)
                 break
@@ -221,13 +240,13 @@ if __name__ == '__main__':
 
     BLACK = 1
     WHILTE = -1
-    board = np.zeros((BOARD_SIZE*BOARD_SIZE))
+    board = np.zeros((BOARD_SIZE*BOARD_SIZE), dtype=np.int8)
     root = Node(board, 7*BOARD_SIZE + 7, BLACK)
     o_print(root)
     node = root
     while not node.is_terminal():
         enemy_move = random.choice(node.next_moves)
         node = OPPONENT_TURN(node, enemy_move)
-        node = MCTS(node, 30)
+        node = MCTS(node, 10)
         o_print(node)
     
